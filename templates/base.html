@@ -21,7 +21,12 @@
     </form>
 
     <ol>
-        <!--- you need to loop over the variable called todos and display the title-->
+       {% for todo in todos: %}
+        <li>{{todo.title}}</li>
+        {% endfor %}
+        
+
+               <!--- you need to loop over the variable called todos and display the title-->
 
         <!--- This is what you want to get at the end.
            1. Title1
