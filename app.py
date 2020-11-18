@@ -8,6 +8,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 ma = Marshmallow(app)
 
 db = SQLAlchemy(app)
+db.create_all()
 
 # ROUTES
 @app.route('/', methods = ['GET'])
@@ -18,7 +19,8 @@ def index():
 @app.route('/add', methods = ['POST'])
 def add():
     title = request.form['title']   # gets the title from the form. request is an object that holds the form data
-    todo = Todo(title=title)        # use the Todo class from line 29 to create a todo and save it in a variable
+    due_date = request.form['due_date']
+    todo = Todo(title=title,due_date=due_date)        # use the Todo class from line 29 to create a todo and save it in a variable
 
     db.session.add(todo)            # get the todo ready to save
     db.session.commit()             # save todo to the database
@@ -28,6 +30,7 @@ def add():
 class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     title = db.Column(db.String(120))
+    due_date = db.Column(db.String(120))
 
     def __repr__(self):
         return "Todo('{}')".format(self.title)
@@ -39,6 +42,15 @@ class TodoSchema(ma.Schema):
 if __name__ == "__main__":
     db.create_all()
     app.run(debug=True)
+
+# @app.route('delete/<string:id_data>', methods = ('POST', 'GET') )
+# def delete(id_data):
+    
+#     cur = mysql.connection.cursor()
+#     cur.excute("DELETE FROM Todo where id = %s", (id_data))
+#     mysql.connection.commit()
+#     return redirect(url_for('Index'))
+
 
 
 """ *******

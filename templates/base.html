@@ -13,6 +13,8 @@
         <div>
             <label for="title"></label>Todo Title</label>
             <input type="text" name="title" placeholder="Enter Todo...">
+            <label for="due_date"></label>due_date</label>
+            <input type="text" name="due_date" placeholder="Enter Todo...">
             <br>
             <button type="submit">Add</button>
 
@@ -22,7 +24,7 @@
 
     <ol>
        {% for todo in todos: %}
-        <li>{{todo.title}}</li>
+        <li>{{todo.title}} {{todo.due_date}}</li>
         {% endfor %}
         
 
