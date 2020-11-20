@@ -1,14 +1,25 @@
 from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
-from flask_marshmallow import Marshmallow
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-ma = Marshmallow(app)
+
 
 db = SQLAlchemy(app)
-db.create_all()
+
+# CLASSES
+class Todo(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    title = db.Column(db.String(120))
+    due_date = db.Column(db.String(120))
+
+    def __init__(self, title, due_date):
+        self.title = title
+        self.due_date = due_date
+    #return "Todo('{}')".format(self.title)
+
 
 # ROUTES
 @app.route('/', methods = ['GET'])
@@ -26,30 +37,20 @@ def add():
     db.session.commit()             # save todo to the database
     return redirect('/')            # redirect to the main page 
 
-# CLASSES
-class Todo(db.Model):
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
-    title = db.Column(db.String(120))
-    due_date = db.Column(db.String(120))
+@app.route('/delete/<string:id_data>', methods = ('POST', 'GET') )
+def delete(id_data):
+    
+    db.session.remove(id_data)
+    db.session.commit()
+   # return redirect(url_for('Index'))
 
-    def __repr__(self):
-        return "Todo('{}')".format(self.title)
 
-class TodoSchema(ma.Schema):
-    class Meta:
-        fields = ('titles',)
 
 if __name__ == "__main__":
     db.create_all()
     app.run(debug=True)
 
-# @app.route('delete/<string:id_data>', methods = ('POST', 'GET') )
-# def delete(id_data):
-    
-#     cur = mysql.connection.cursor()
-#     cur.excute("DELETE FROM Todo where id = %s", (id_data))
-#     mysql.connection.commit()
-#     return redirect(url_for('Index'))
+
 
 
 
