@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todo App</title>
+    <style>
+        .button {
+  background-color: red; /* red*/
+  border: none;
+  color: white;
+  padding: 5px 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+    </style>
 </head>
 <body>
     
@@ -26,7 +38,7 @@
        {% for todo in todos: %}
         <li>
             {{todo.title}} {{todo.due_date}}
-            <a href="/delete/{{todo.id}}" class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure To Delete ?')">Delete</a>
+            <a class="button" href="/delete/{{todo.id}}" class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure To Delete ?')">Delete</a>
         </li>
         {% endfor %}
         
