@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 
 
@@ -39,10 +39,10 @@ def add():
 
 @app.route('/delete/<string:id_data>', methods = ('POST', 'GET') )
 def delete(id_data):
-    
-    db.session.remove(id_data)
+    todo = Todo.query.filter_by(id=id_data).first()
+    db.session.delete(todo)
     db.session.commit()
-   # return redirect(url_for('Index'))
+    return redirect(url_for("index"))
 
 
 
