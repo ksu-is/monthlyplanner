@@ -1,13 +1,23 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from flask_mail import Mail, Message
+from dotenv import load_dotenv
 
+project_folder = os.path.expanduser('./') 
+load_dotenv(os.path.join(project_folder, '.env'))
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'app.dev.test.2020@gmail.com'
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
 db = SQLAlchemy(app)
+mail = Mail(app)
 
 # CLASSES
 class Todo(db.Model):
@@ -24,6 +34,8 @@ class Todo(db.Model):
 # ROUTES
 @app.route('/', methods = ['GET'])
 def index():
+  
+
     todos = Todo.query.all()        # get all the todos from the database
     return render_template('base.html', todos=todos)     # todos=todos pass this variable 'todos', and use this variable base.html
 
@@ -35,6 +47,10 @@ def add():
 
     db.session.add(todo)            # get the todo ready to save
     db.session.commit()             # save todo to the database
+
+    msg = Message('New Task', sender = 'app.dev.test.2020@gmail.com', recipients = ['tahbristol@gmail.com','esmit319@students.kennesaw.edu'])
+    msg.body = f"{title}\nDue Date: {due_date}"
+    mail.send(msg)
     return redirect('/')            # redirect to the main page 
 
 @app.route('/delete/<string:id_data>', methods = ('POST', 'GET') )
