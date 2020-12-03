@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todo App</title>
+    <style>
+        .button {
+  background-color: red; /* red*/
+  border: none;
+  color: white;
+  padding: 5px 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+    </style>
 </head>
 <body>
     
@@ -13,6 +25,8 @@
         <div>
             <label for="title"></label>Todo Title</label>
             <input type="text" name="title" placeholder="Enter Todo...">
+            <label for="due_date"></label>Due Date</label>
+            <input type="text" name="due_date" placeholder="Enter Due Date...">
             <br>
             <button type="submit">Add</button>
 
@@ -21,7 +35,15 @@
     </form>
 
     <ol>
-        <!--- you need to loop over the variable called todos and display the title-->
+       {% for todo in todos: %}
+        <li>
+            {{todo.title}} {{todo.due_date}}
+            <a class="button" href="/delete/{{todo.id}}" class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure To Delete ?')">Delete</a>
+        </li>
+        {% endfor %}
+        
+
+               <!--- you need to loop over the variable called todos and display the title-->
 
         <!--- This is what you want to get at the end.
            1. Title1

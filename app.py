@@ -1,44 +1,73 @@
-from flask import Flask, render_template, request, redirect
+import os
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from flask_marshmallow import Marshmallow
+from flask_mail import Mail, Message
+from dotenv import load_dotenv
+
+project_folder = os.path.expanduser('./') 
+load_dotenv(os.path.join(project_folder, '.env'))
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-ma = Marshmallow(app)
-
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'app.dev.test.2020@gmail.com'
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
 db = SQLAlchemy(app)
+mail = Mail(app)
+
+# CLASSES
+class Todo(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    title = db.Column(db.String(120))
+    due_date = db.Column(db.String(120))
+
+    def __init__(self, title, due_date):
+        self.title = title
+        self.due_date = due_date
+    #return "Todo('{}')".format(self.title)
+
 
 # ROUTES
 @app.route('/', methods = ['GET'])
 def index():
+  
+
     todos = Todo.query.all()        # get all the todos from the database
     return render_template('base.html', todos=todos)     # todos=todos pass this variable 'todos', and use this variable base.html
 
 @app.route('/add', methods = ['POST'])
 def add():
     title = request.form['title']   # gets the title from the form. request is an object that holds the form data
-    todo = Todo(title=title)        # use the Todo class from line 29 to create a todo and save it in a variable
+    due_date = request.form['due_date']
+    todo = Todo(title=title,due_date=due_date)        # use the Todo class from line 29 to create a todo and save it in a variable
 
     db.session.add(todo)            # get the todo ready to save
     db.session.commit()             # save todo to the database
+
+    msg = Message('New Task', sender = 'app.dev.test.2020@gmail.com', recipients = [''])
+    msg.body = f"{title}\nDue Date: {due_date}"
+    mail.send(msg)
     return redirect('/')            # redirect to the main page 
 
-# CLASSES
-class Todo(db.Model):
-    id = db.Column(db.Integer, primary_key=True, nullable=False)
-    title = db.Column(db.String(120))
+@app.route('/delete/<string:id_data>', methods = ('POST', 'GET') )
+def delete(id_data):
+    todo = Todo.query.filter_by(id=id_data).first()
+    db.session.delete(todo)
+    db.session.commit()
+    return redirect(url_for("index"))
 
-    def __repr__(self):
-        return "Todo('{}')".format(self.title)
 
-class TodoSchema(ma.Schema):
-    class Meta:
-        fields = ('titles',)
 
 if __name__ == "__main__":
     db.create_all()
     app.run(debug=True)
+
+
+
 
 
 """ *******
