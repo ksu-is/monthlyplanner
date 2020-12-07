@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for,session
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail, Message
 from dotenv import load_dotenv
@@ -12,12 +12,13 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'app.dev.test.2020@gmail.com'
+app.config['MAIL_email'] = 'app.dev.test.2020@gmail.com'
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 db = SQLAlchemy(app)
 mail = Mail(app)
+app.secret_key='asdsdfsdfs13sdf_df%&'
 
 # CLASSES
 class Todo(db.Model):
@@ -30,14 +31,30 @@ class Todo(db.Model):
         self.due_date = due_date
     #return "Todo('{}')".format(self.title)
 
+@app.route('/login',methods=['GET','POST'])
+def login():
+    if request.method=='POST':
+        session['email']=request.form['email']
+        return redirect(url_for('index'))
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('email',None)
+    return redirect(url_for('index'))
 
 # ROUTES
 @app.route('/', methods = ['GET'])
 def index():
-  
+    if "email" in session and len(session["email"]):
+        todos = Todo.query.all()        # get all the todos from the database
+        return render_template('base.html', todos=todos)     # todos=todos pass this variable 'todos', and use this variable base.html
+    return render_template('login.html')
 
-    todos = Todo.query.all()        # get all the todos from the database
-    return render_template('base.html', todos=todos)     # todos=todos pass this variable 'todos', and use this variable base.html
+@app.route("/home",methods = ['GET'])
+def home():
+    return render_template('login_home.html')
+     
 
 @app.route('/add', methods = ['POST'])
 def add():
