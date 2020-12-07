@@ -65,7 +65,7 @@ def add():
     db.session.add(todo)            # get the todo ready to save
     db.session.commit()             # save todo to the database
 
-    msg = Message('New Task', sender = 'app.dev.test.2020@gmail.com', recipients = [''])
+    msg = Message('New Task', sender = 'app.dev.test.2020@gmail.com', recipients = [session["email"]])
     msg.body = f"{title}\nDue Date: {due_date}"
     mail.send(msg)
     return redirect('/')            # redirect to the main page 
