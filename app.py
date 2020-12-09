@@ -1,4 +1,4 @@
-import os
+import os, re,datetime
 from flask import Flask, render_template, request, redirect, url_for,session
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail, Message
@@ -64,9 +64,17 @@ def add():
 
     db.session.add(todo)            # get the todo ready to save
     db.session.commit()             # save todo to the database
+    link_base = "https://calendar.google.com/calendar/u/0/r/eventedit?"
+    month,day,year = re.split('[/|-]', todo.due_date)
+    formated_date = f"{year}{month}{day}"
+    date_part = f"dates={formated_date}T050000Z/{formated_date}T050000Z"
+
+    title_part = f'&text={todo.title}'
+
+    complete_link = link_base + date_part + title_part
 
     msg = Message('New Task', sender = 'app.dev.test.2020@gmail.com', recipients = [session["email"]])
-    msg.body = f"{title}\nDue Date: {due_date}"
+    msg.body = f"{title}\nDue Date: {due_date}\nAdd to google calendar: {complete_link}"
     mail.send(msg)
     return redirect('/')            # redirect to the main page 
 
